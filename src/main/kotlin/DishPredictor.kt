@@ -6,7 +6,6 @@ class DishPredictor {
         dislikedDishes: List<DishDto>,
         allDishes: List<DishDto>
     ): List<DishDto> {
-        // Zbiór składników z polubionych i niepolubionych dań
         val likedIngredients = likedDishes.flatMap { it.ingredients }.groupingBy { it }.eachCount()
         val dislikedIngredients = dislikedDishes.flatMap { it.ingredients }.toSet()
 
@@ -21,10 +20,8 @@ class DishPredictor {
             }
             score
         }
-
-        // Sortowanie dań według wyniku
         return dishScores.entries
-            .filter { it.value > 0 } // Tylko dania z pozytywnym wynikiem
+            .filter { it.value > 0 }
             .sortedByDescending { it.value }
             .map { it.key }.filter { dish->
                 dislikedDishes.find { disliked-> disliked.name==dish.name }==null

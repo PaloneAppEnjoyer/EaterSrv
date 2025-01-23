@@ -3,6 +3,7 @@ val koin_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 val postgres_version: String by project
+val ktor_version: String by project
 
 plugins {
     kotlin("jvm") version "2.1.0"
@@ -25,6 +26,7 @@ repositories {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-call-logging")
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-content-negotiation")

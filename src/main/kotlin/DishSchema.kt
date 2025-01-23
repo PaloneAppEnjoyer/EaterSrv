@@ -34,7 +34,8 @@ data class DishDto(
     val cuisine: Cuisine,
     val ingredients: List<Ingredient>,
     val imageUrl: String,
-    val description: String
+    val description: String,
+    val allergens:List<String>
 )
 
 
@@ -60,10 +61,21 @@ class DishService(private val connection: Connection) {
         private const val CREATE_TABLE_CUISINE_TO_DISH =
             "CREATE TABLE DISH_TO_CUISINE (ID SERIAL PRIMARY KEY, CUISINE_ID INT, DISH_ID INT);"
         private const val SELECT_DISH_ID_TO_CUISINE_ID = "SELECT cuisine_id FROM dish_to_cuisine WHERE dish_id = ?"
+        private const val CREATE_TABLE_ALLERGENS =
+            "CREATE TABLE ALLERGENS (ID SERIAL PRIMARY KEY, NAME VARCHAR(255));"
+        private const val CREATE_TABLE_ALLERGENS_TO_DISH =
+            "CREATE TABLE ALLERGENS_TO_DISH (ID SERIAL PRIMARY KEY, ALLERGEN_ID INT, DISH_ID INT);"
     }
 
     init {
         val statement = connection.createStatement()
+        /*statement.execute(CREATE_TABLE_DISH)
+        statement.execute(CREATE_TABLE_CUISINE)
+        statement.execute(CREATE_TABLE_INGREDIENT)
+        statement.execute(CREATE_TABLE_INGREDIENT_TO_DISH)
+        statement.execute(CREATE_TABLE_CUISINE_TO_DISH)*/
+        //statement.execute(CREATE_TABLE_ALLERGENS)
+        //statement.execute(CREATE_TABLE_ALLERGENS_TO_DISH)
     }
 
     suspend fun readDish(id: Int): Dish = withContext(Dispatchers.IO) {
@@ -159,11 +171,20 @@ class DishService(private val connection: Connection) {
         ingredientId.setInt(1, id)
         val ingredientIdResultSet = ingredientId.executeQuery()
         val ingredientIdList = mutableListOf<Int>()
+
+        val allergenName = connection.prepareStatement("SELECT name FROM allergens,allergens_to_dish WHERE allergens_to_dish.allergen_id = allergens.id AND allergens_to_dish.dish_id = ?")
+        allergenName.setInt(1, id)
+        val allergenNameResultSet = allergenName.executeQuery()
+        val allergenNameList = mutableListOf<String>()
+        while (allergenNameResultSet.next()) {
+            allergenNameList.add(allergenNameResultSet.getString("name"))
+        }
+
         while (ingredientIdResultSet.next()) {
             ingredientIdList.add(ingredientIdResultSet.getInt("ingredient_id"))
         }
         val ingredients = ingredientIdList.map { readIngredient(it) }
 
-        return@withContext DishDto(id, dish.name, cuisine, ingredients, dish.imageUrl, dish.description)
+        return@withContext DishDto(id, dish.name, cuisine, ingredients, dish.imageUrl, dish.description, allergenNameList)
     }
 }
