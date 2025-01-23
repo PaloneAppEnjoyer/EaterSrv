@@ -6,6 +6,6 @@ ktor:
     port: 3000
     host: 192.168.0.45
 postgres:
-  url: "jdbc:postgresql://eater-student-6567.k.aivencloud.com:18642/eater?ssl=require"
+  url: "YourPostreSQLURL"
   user: avnadmin
-  password: AVNS_Tu06cN1EhGXfbHb6YlG
+  password: YourPassword
